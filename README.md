@@ -1,4 +1,4 @@
-# Web-Based Drum Sequencer
+# Web-Based Drum Sequencer v2
 
 A modern web-based drum sequencer built with React, TypeScript, and the Web Audio API. This project features a vintage drum machine-inspired interface with advanced functionality for music production.
 
