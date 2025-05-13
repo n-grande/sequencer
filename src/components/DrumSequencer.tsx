@@ -43,59 +43,43 @@ const Panel = styled.div`
 `;
 
 const SequencerGrid = styled.div`
-  display: grid;
-  grid-template-columns: 220px repeat(16, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 4px;
   background: ${retroPanel};
   border-radius: 8px;
   border: 2px solid ${retroStepBorder};
   margin-top: 16px;
-`;
-
-const StepButton = styled.button<{ active: boolean; current: boolean }>`
-  width: 38px;
-  height: 38px;
-  border: 2px solid ${retroStepBorder};
-  border-radius: 6px;
-  background: ${({ active }) =>
-    active ? retroStepActive : retroStepInactive};
-  color: #222;
-  font-family: ${retroFont};
-  font-size: 18px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px #0006;
-  transition: box-shadow 0.2s, border 0.2s;
-  outline: none;
   position: relative;
-  z-index: 1;
-  ${({ current }) =>
-    current
-      ? `
-    box-shadow: 0 0 0 4px ${playheadColor}, 0 2px 4px #0006;
-    border: 2.5px solid ${playheadColor};
-  `
-      : ''}
-  &:hover {
-    border: 2px solid ${retroAccent};
-    background: ${retroAccent3};
-  }
 `;
 
 const TrackControls = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 8px 0 0;
+  padding: 0 8px;
   height: 38px;
+  position: relative;
+  z-index: 2;
+  background: ${retroPanel};
+  min-width: 120px;
+  box-sizing: border-box;
+  justify-content: flex-end;
 `;
 
 const TrackLabel = styled.div`
   color: ${retroText};
   font-family: ${retroFont};
   font-size: 18px;
-  min-width: 60px;
+  min-width: 30px;
   text-align: right;
   margin-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: ${retroPanel};
+  padding: 2px 4px;
+  border-radius: 4px;
 `;
 
 const VolumeSlider = styled.input`
@@ -129,6 +113,16 @@ const VolumeValue = styled.span`
   font-size: 13px;
 `;
 
+const ControlsGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  background: ${retroPanel};
+  padding: 2px;
+  border-radius: 4px;
+`;
+
 const MuteButton = styled.button`
   padding: 2px 10px;
   background: #222;
@@ -137,8 +131,10 @@ const MuteButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
-  margin-left: 4px;
   font-family: ${retroFont};
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
   &.muted {
     background: ${retroAccent2};
     color: #fff;
@@ -158,8 +154,10 @@ const SoloButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
-  margin-left: 4px;
   font-family: ${retroFont};
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
   &.soloed {
     background: ${retroAccent3};
     color: #222;
@@ -322,10 +320,64 @@ const StepCell = styled.div<{ barColor?: string; isBarStart: boolean }>`
   border-radius: ${({ isBarStart }) => (isBarStart ? '6px 0 0 6px' : '0')};
 `;
 
+const TrackRow = styled.div`
+  display: grid;
+  grid-template-columns: 120px repeat(16, 1fr);
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+  height: 38px;
+  background: ${retroPanel};
+`;
+
+const StepButton = styled.button<{ active: boolean; current: boolean }>`
+  width: 38px;
+  height: 38px;
+  border: 2px solid ${retroStepBorder};
+  border-radius: 6px;
+  background: ${({ active }) =>
+    active ? retroStepActive : retroStepInactive};
+  color: #222;
+  font-family: ${retroFont};
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px #0006;
+  transition: box-shadow 0.2s, border 0.2s;
+  outline: none;
+  position: relative;
+  z-index: 1;
+  ${({ current }) =>
+    current
+      ? `
+    box-shadow: 0 0 0 4px ${playheadColor}, 0 2px 4px #0006;
+    border: 2.5px solid ${playheadColor};
+  `
+      : ''}
+  &:hover {
+    border: 2px solid ${retroAccent};
+    background: ${retroAccent3};
+  }
+`;
+
+// Add new styled component for the clear button
+const ClearButton = styled.button`
+  padding: 8px 16px;
+  background: ${retroAccent2};
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: ${retroFont};
+  margin-left: 16px;
+  &:hover {
+    background: ${retroAccent};
+  }
+`;
+
 const DrumSequencer: React.FC = () => {
   const [tracks, setTracks] = useState<Track[]>([
     {
-      name: 'Kick',
+      name: 'K',
       steps: Array(16).fill({ active: false, volume: 1, pan: 0, pitch: 0 }),
       sample: null,
       volume: 1,
@@ -333,7 +385,7 @@ const DrumSequencer: React.FC = () => {
       solo: false
     },
     {
-      name: 'Clap',
+      name: 'C',
       steps: Array(16).fill({ active: false, volume: 1, pan: 0, pitch: 0 }),
       sample: null,
       volume: 1,
@@ -341,7 +393,7 @@ const DrumSequencer: React.FC = () => {
       solo: false
     },
     {
-      name: 'Hi-Hat',
+      name: 'H',
       steps: Array(16).fill({ active: false, volume: 1, pan: 0, pitch: 0 }),
       sample: null,
       volume: 1,
@@ -350,7 +402,7 @@ const DrumSequencer: React.FC = () => {
       chokeGroup: 'hihat'
     },
     {
-      name: 'Open Hi-Hat',
+      name: 'OH',
       steps: Array(16).fill({ active: false, volume: 1, pan: 0, pitch: 0 }),
       sample: null,
       volume: 1,
@@ -650,6 +702,13 @@ const DrumSequencer: React.FC = () => {
     };
   }, []);
 
+  const clearDrumSequencer = () => {
+    setTracks(prev => prev.map(track => ({
+      ...track,
+      steps: Array(16).fill({ active: false, volume: 1, pan: 0, pitch: 0 })
+    })));
+  };
+
   return (
     <Panel>
       <ControlsContainer>
@@ -699,54 +758,49 @@ const DrumSequencer: React.FC = () => {
         >
           Tap Tempo
         </TapTempoButton>
+        <ClearButton onClick={clearDrumSequencer}>
+          Clear Drums
+        </ClearButton>
       </ControlsContainer>
+      
       <SequencerGrid>
         {tracks.map((track, trackIndex) => (
-          <React.Fragment key={track.name}>
+          <TrackRow key={track.name}>
             <TrackControls>
               <TrackLabel>{track.name}</TrackLabel>
               <VolumeSlider
                 type="range"
                 min="0"
                 max="1"
-                step="0.01"
+                step="0.1"
                 value={track.volume}
                 onChange={(e) => handleVolumeChange(trackIndex, parseFloat(e.target.value))}
               />
               <VolumeValue>{Math.round(track.volume * 100)}%</VolumeValue>
-              <MuteButton
-                className={track.muted ? 'muted' : ''}
-                onClick={() => handleMute(trackIndex)}
-              >
-                {track.muted ? 'Muted' : 'Mute'}
-              </MuteButton>
-              <SoloButton
-                className={track.solo ? 'soloed' : ''}
-                onClick={e => handleSolo(trackIndex, e)}
-              >
-                {track.solo ? 'Soloed' : 'Solo'}
-              </SoloButton>
+              <ControlsGroup>
+                <MuteButton
+                  className={track.muted ? 'muted' : ''}
+                  onClick={() => handleMute(trackIndex)}
+                >
+                  MUTE
+                </MuteButton>
+                <SoloButton
+                  className={track.solo ? 'soloed' : ''}
+                  onClick={(e) => handleSolo(trackIndex, e)}
+                >
+                  SOLO
+                </SoloButton>
+              </ControlsGroup>
             </TrackControls>
-            {track.steps.map((step, stepIndex) => {
-              // Bar coloring logic (TR-808 style)
-              let barColor = '';
-              if (stepIndex % 16 === 0) barColor = '#ff9800'; // 1st bar (orange)
-              else if (stepIndex % 16 === 4) barColor = '#ffd600'; // 2nd bar (yellow)
-              else if (stepIndex % 16 === 8) barColor = '#ff1744'; // 3rd bar (red)
-              else if (stepIndex % 16 === 12) barColor = '#00e676'; // 4th bar (green)
-              const isBarStart = stepIndex % 4 === 0;
-              return (
-                <StepCell key={stepIndex} barColor={barColor} isBarStart={isBarStart}>
-                  <StepLED current={currentStep === stepIndex} />
-                  <StepButton
-                    active={step.active}
-                    current={currentStep === stepIndex}
-                    onClick={() => toggleStep(trackIndex, stepIndex)}
-                  />
-                </StepCell>
-              );
-            })}
-          </React.Fragment>
+            {track.steps.map((step, stepIndex) => (
+              <StepButton
+                key={stepIndex}
+                active={step.active}
+                current={currentStep === stepIndex}
+                onClick={() => toggleStep(trackIndex, stepIndex)}
+              />
+            ))}
+          </TrackRow>
         ))}
       </SequencerGrid>
     </Panel>
