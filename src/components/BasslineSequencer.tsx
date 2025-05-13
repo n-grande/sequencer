@@ -132,7 +132,7 @@ const Slider = styled.input`
   }
 `;
 
-const SlideButton = styled.button<{ active: boolean }>`
+const SlideButton = styled.button<{ active: boolean, current: boolean }>`
   position: absolute;
   bottom: 2px;
   right: 2px;
